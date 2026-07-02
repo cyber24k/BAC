@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-church-blue: #0d1b2a;
+  --color-church-blue-dark: #081019;
+  --color-church-blue-light: #1b4965;
+  --color-church-blue-accent: #62b6cb;
+  
+  --color-church-khaki: #c2b280;
+  --color-church-khaki-dark: #2c2514;
+  --color-church-khaki-light: #f2e9e1;
+  
+  --color-church-red: #d62246;
+  --color-church-red-dark: #900c27;
+  --color-church-red-light: #ff4d6d;
+
+  /* Legacy mappings to resolve color changes across existing pages */
+  --color-church-purple: var(--color-church-khaki-dark);
+  --color-church-purple-dark: var(--color-church-khaki-dark);
+  --color-church-purple-light: var(--color-church-khaki-light);
+  --color-church-purple-accent: var(--color-church-khaki);
+  --color-church-gold: var(--color-church-blue-light);
+  --color-church-gold-dark: var(--color-church-blue-dark);
+  --color-church-gold-light: var(--color-church-blue-accent);
+  
+  --font-serif: "Playfair Display", Georgia, Cambria, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Global Styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: #fafaf9; /* Stone-50 warm white default */
+  color: #0f172a; /* Darker slate-900 for sharp readability */
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f5f4;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* Custom animated overlays */
+.glass-nav {
+  background-color: rgba(44, 37, 20, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-card-dark {
+  background: rgba(44, 37, 20, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Ken Burns Carousel Keyframes */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.08) translate(-1%, -0.5%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+.animate-kenburns {
+  animation: kenburns 24s ease-in-out infinite;
+}
+
+/* Pulse animation for notice notifications */
+@keyframes notice-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 6px rgba(220, 38, 38, 0);
+  }
+}
+
+.animate-notice-pulse {
+  animation: notice-pulse 2s infinite;
+}

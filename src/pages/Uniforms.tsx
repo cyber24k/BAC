@@ -48,7 +48,7 @@ export const UniformsPage: React.FC = () => {
   };
 
   const handleWhatsAppEnquiry = (item: UniformItem) => {
-    const defaultText = `Hi Bethsaida Church Shop, I am inquiring about the "${item.name}" (Price: ${item.price}). Please guide me on sizes and availability.`;
+    const defaultText = `Hi Bethesda Church Shop, I am inquiring about the "${item.name}" (Price: ${item.price}). Please guide me on sizes and availability.`;
     const encodedText = encodeURIComponent(defaultText);
     const whatsappUrl = `https://wa.me/263772123456?text=${encodedText}`;
     window.open(whatsappUrl, '_blank');
@@ -85,13 +85,13 @@ export const UniformsPage: React.FC = () => {
       <section className="bg-church-purple text-white py-12 mb-10">
         <div className="container mx-auto px-4 md:px-6 text-center">
           <span className="text-church-gold font-bold uppercase tracking-widest text-xs border border-church-gold/30 px-3 py-1 rounded-full bg-church-gold/10">
-            Bethsaida Store
+            Bethesda Store
           </span>
           <h1 className="text-3xl md:text-5xl font-bold font-serif mt-3 mb-2">
             Uniform Prices & Designs
           </h1>
           <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
-            Explore prices and sizing standards for official Bethsaida assemblies garments.
+            Explore prices and sizing standards for official Bethesda assemblies garments.
           </p>
         </div>
       </section>

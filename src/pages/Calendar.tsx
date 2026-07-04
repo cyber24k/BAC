@@ -129,9 +129,9 @@ export const CalendarPage: React.FC = () => {
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//Bethsaida Apostolic Church//Calendar//EN',
+      'PRODID:-//Bethesda Apostolic Church//Calendar//EN',
       'BEGIN:VEVENT',
-      `UID:${event.id}@bethsaida`,
+      `UID:${event.id}@Bethesda`,
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTSTART:${dstart}`,
       `DTEND:${dend}`,
@@ -160,7 +160,7 @@ export const CalendarPage: React.FC = () => {
             maDays emuSangano
           </span>
           <h1 className="text-3xl md:text-5xl font-bold font-serif mt-3 mb-2">
-            Bethsaida Events Calendar
+            Bethesda Events Calendar
           </h1>
           <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
             Keep track of all upcoming assembly services, women\'s fellowship days, youth fellowships, and national conventions.

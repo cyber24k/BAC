@@ -43,7 +43,7 @@ export const SectionsPage: React.FC = () => {
             Church Sections Tracker
           </h1>
           <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
-            Find and connect with any of our official Bethsaida Apostolic Church sections across Zimbabwe.
+            Find and connect with any of our official Bethesda Apostolic Church sections across Zimbabwe.
           </p>
         </div>
       </section>

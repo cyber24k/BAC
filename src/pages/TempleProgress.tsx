@@ -41,7 +41,7 @@ export const TempleProgressPage: React.FC = () => {
             Temple Building Tracker
           </h1>
           <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
-            Follow the construction journey of our central Bethsaida Assembly in Highfield, Harare.
+            Follow the construction journey of our central Bethesda Assembly in Highfield, Harare.
           </p>
         </div>
       </section>
@@ -248,7 +248,7 @@ export const TempleProgressPage: React.FC = () => {
                         Merchant Code: <strong>*151*2*2*123456#</strong>
                       </p>
                       <p className="text-[10px] text-stone-500 font-light mt-0.5">
-                        Registered Name: Bethsaida Apostolic Church HQ
+                        Registered Name: Bethesda Apostolic Church HQ
                       </p>
                     </div>
                   </div>
@@ -260,7 +260,7 @@ export const TempleProgressPage: React.FC = () => {
                     </div>
                     <div className="text-xs text-stone-600">
                       <h4 className="font-bold text-violet-800 text-sm mb-1">ZB Bank (USD Account)</h4>
-                      <p>Account Name: <strong>Bethsaida Apostolic Church</strong></p>
+                      <p>Account Name: <strong>Bethesda Apostolic Church</strong></p>
                       <p>Account Number: <strong>4307-123456-090</strong></p>
                       <p>Branch: <strong>Highfield Branch, Harare</strong></p>
                     </div>
@@ -273,7 +273,7 @@ export const TempleProgressPage: React.FC = () => {
                     </div>
                     <div className="text-xs text-stone-600">
                       <h4 className="font-bold text-blue-800 text-sm mb-1">Steward Bank (ZiG Account)</h4>
-                      <p>Account Name: <strong>Bethsaida Apostolic Church</strong></p>
+                      <p>Account Name: <strong>Bethesda Apostolic Church</strong></p>
                       <p>Account Number: <strong>1012-765432-110</strong></p>
                       <p>Branch: <strong>First Street Branch, Harare</strong></p>
                     </div>

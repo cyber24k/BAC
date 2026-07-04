@@ -19,12 +19,12 @@ export const Footer: React.FC = () => {
             <Link to="/" className="flex items-center gap-2">
               <img
                 src="/images/logo.jpg"
-                alt="Bethsaida Logo"
+                alt="Bethesda Logo"
                 className="w-9 h-9 rounded-full object-cover shadow"
               />
               <div className="flex flex-col">
                 <span className="text-white font-serif font-bold tracking-wide text-lg">
-                  Bethsaida
+                  Bethesda
                 </span>
                 <span className="text-[9px] text-stone-300 font-sans tracking-widest uppercase font-semibold leading-none">
                   Apostolic Church
@@ -158,8 +158,8 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={18} className="text-church-gold shrink-0" />
-                <a href="mailto:info@bethsaidaapostolic.org" className="hover:text-church-gold">
-                  info@bethsaidaapostolic.org
+                <a href="mailto:info@Bethesdaapostolic.org" className="hover:text-church-gold">
+                  info@Bethesdaapostolic.org
                 </a>
               </li>
             </ul>
@@ -169,7 +169,7 @@ export const Footer: React.FC = () => {
         {/* Bottom copyright & scroll-to-top */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-stone-500 font-light text-center md:text-left">
-            © 2026 Bethsaida Apostolic Church. All rights reserved. Built for ministry outreach.
+            © 2026 Bethesda Apostolic Church. All rights reserved. Built for ministry outreach.
           </p>
 
           <button

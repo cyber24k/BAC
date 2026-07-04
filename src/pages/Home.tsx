@@ -216,7 +216,7 @@ export const Home: React.FC = () => {
               <div className="relative h-[350px] md:h-[450px] rounded-2xl overflow-hidden shadow-2xl">
                 <img
                   src="/images/congregation_hall.jpg"
-                  alt="Bethsaida Temple Building Congregation"
+                  alt="Bethesda Temple Building Congregation"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-church-purple-dark/80 via-transparent to-transparent" />
@@ -224,7 +224,7 @@ export const Home: React.FC = () => {
                   <span className="bg-church-gold text-church-purple-dark text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
                     Highfield Assembly
                   </span>
-                  <h3 className="text-2xl font-bold font-serif mt-2">Bethsaida House of Prayer</h3>
+                  <h3 className="text-2xl font-bold font-serif mt-2">Bethesda House of Prayer</h3>
                   <p className="text-stone-300 text-xs font-light">Construction commenced late 2024</p>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export const Home: React.FC = () => {
             <Sparkles className="w-7 h-7" />
           </div>
           <span className="text-church-gold font-bold uppercase tracking-widest text-xs">
-            Bethsaida Praise Choir
+            Bethesda Praise Choir
           </span>
           <h2 className="text-3xl md:text-5xl font-extrabold font-serif text-white">
             Lift Up Your Voice in Praise
@@ -374,7 +374,7 @@ export const Home: React.FC = () => {
                 Youth Convention Countdown
               </h2>
               <p className="text-stone-400 font-light leading-relaxed">
-                Join thousands of other youths from sections across the country for the annual Bethsaida Apostolic Youth Convention in Marondera. Get ready for music, testimonies, teachings, and spiritual revitalization!
+                Join thousands of other youths from sections across the country for the annual Bethesda Apostolic Youth Convention in Marondera. Get ready for music, testimonies, teachings, and spiritual revitalization!
               </p>
               <div className="flex flex-wrap gap-4 mt-2">
                 <Link

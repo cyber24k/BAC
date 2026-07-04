@@ -55,10 +55,10 @@ export const ContactPage: React.FC = () => {
 
   // Church Leadership contacts
   const leaders = [
-    { name: 'Pastor T. Maposa', role: 'Senior Overseeing Pastor', phone: '+263 77 212 3456', email: 'tmaposa@bethsaida.org' },
-    { name: 'Secretary T. Mafunga', role: 'Church Secretariat', phone: '+263 77 987 6543', email: 'secretary@bethsaida.org' },
-    { name: 'Brother S. Zhou', role: 'National Youth Coordinator', phone: '+263 78 333 4444', email: 'youths@bethsaida.org' },
-    { name: 'Sister M. Chofamba', role: 'Praise Choir Leader', phone: '+263 71 222 3333', email: 'choir@bethsaida.org' },
+    { name: 'Pastor T. Maposa', role: 'Senior Overseeing Pastor', phone: '+263 77 212 3456', email: 'tmaposa@Bethesda.org' },
+    { name: 'Secretary T. Mafunga', role: 'Church Secretariat', phone: '+263 77 987 6543', email: 'secretary@Bethesda.org' },
+    { name: 'Brother S. Zhou', role: 'National Youth Coordinator', phone: '+263 78 333 4444', email: 'youths@Bethesda.org' },
+    { name: 'Sister M. Chofamba', role: 'Praise Choir Leader', phone: '+263 71 222 3333', email: 'choir@Bethesda.org' },
   ];
 
   return (
@@ -238,7 +238,7 @@ export const ContactPage: React.FC = () => {
                   <div>
                     <h4 className="font-bold text-stone-800 text-xs uppercase tracking-wider">Email Address</h4>
                     <p className="mt-1">
-                      <a href="mailto:info@bethsaidaapostolic.org" className="hover:text-church-purple">info@bethsaidaapostolic.org</a>
+                      <a href="mailto:info@Bethesdaapostolic.org" className="hover:text-church-purple">info@Bethesdaapostolic.org</a>
                     </p>
                   </div>
                 </div>

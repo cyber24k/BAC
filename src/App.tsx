@@ -12,6 +12,8 @@ import { UniformsPage } from './pages/Uniforms';
 import { NoticeBoardPage } from './pages/NoticeBoard';
 import { ContactPage } from './pages/Contact';
 import { YouthPage } from './pages/Youth';
+import { BMCUPage } from './pages/BMCU';
+import { RuwadzanoPage } from './pages/Ruwadzano';
 
 // Reusable animated page wrapper that forces page scroll-to-top on route changes
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -54,6 +56,8 @@ const AppContent: React.FC = () => {
             <Route path="/uniforms" element={<PageWrapper><UniformsPage /></PageWrapper>} />
             <Route path="/notice-board" element={<PageWrapper><NoticeBoardPage /></PageWrapper>} />
             <Route path="/youth" element={<PageWrapper><YouthPage /></PageWrapper>} />
+            <Route path="/bmcu" element={<PageWrapper><BMCUPage /></PageWrapper>} />
+            <Route path="/ruwadzano" element={<PageWrapper><RuwadzanoPage /></PageWrapper>} />
             <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
             <Route path="*" element={<PageWrapper><Home /></PageWrapper>} />
           </Routes>

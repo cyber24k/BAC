@@ -169,7 +169,7 @@ export const ChoirPage: React.FC = () => {
             Choir Registration
           </h1>
           <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
-            Offer your talent to God. Register to audition for the Bethsaida Praise Choir.
+            Offer your talent to God. Register to audition for the Bethesda Praise Choir.
           </p>
         </div>
       </section>

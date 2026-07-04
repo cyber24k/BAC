@@ -85,7 +85,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="text-church-gold font-bold uppercase tracking-widest text-xs md:text-sm mb-3 border-l-2 border-church-gold pl-3"
               >
-                Welcome to Bethsaida
+                Welcome to Bethesda
               </motion.span>
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}

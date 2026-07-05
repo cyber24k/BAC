@@ -1,386 +1,515 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, List, Download, MapPin, Clock, ArrowLeft, ArrowRight, Tag } from 'lucide-react';
-import { AnimatedCard } from '../components/AnimatedCard';
-import { mockEvents } from '../data/mockData';
-import type { ChurchEvent } from '../data/mockData';
+import {
+  Calendar as CalendarIcon,
+  LayoutGrid,
+  List,
+  ChevronLeft,
+  ChevronRight,
+  Star,
+} from 'lucide-react';
+import { annualEvents, categoryMeta } from '../data/calendarData';
+import type { EventCategory } from '../data/calendarData';
 
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const ALL_CATEGORIES: EventCategory[] = [
+  'National', 'Ruwadzano', 'BMCU & Ruwadzano', 'BMCU', 'Sunday School', 'General',
+];
+
+// ─── helpers ──────────────────────────────────────────────────────────────────
+function getDaysInMonth(month: number, year: number) {
+  return new Date(year, month + 1, 0).getDate();
+}
+function getFirstDayOfMonth(month: number, year: number) {
+  return new Date(year, month, 1).getDay(); // 0 = Sunday
+}
+function padTwo(n: number) {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+function formatDate(year: number, month: number, day: number) {
+  return `${year}-${padTwo(month + 1)}-${padTwo(day)}`;
+}
+
+// ─── component ────────────────────────────────────────────────────────────────
 export const CalendarPage: React.FC = () => {
-  const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  
-  // Start calendar navigation at July 2026 (the current timeframe of mock data)
-  const [currentYear, setCurrentYear] = useState(2026);
-  const [currentMonth, setCurrentMonth] = useState(6); // 0-indexed, so 6 is July
+  const YEAR = 2026;
+  const [viewMode, setViewMode] = useState<'annual' | 'month' | 'list'>('annual');
+  const [focusMonth, setFocusMonth] = useState<number>(new Date().getMonth());
+  const [activeCategories, setActiveCategories] = useState<Set<EventCategory>>(
+    new Set(ALL_CATEGORIES),
+  );
 
-  const monthsList = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
+  // Today string for highlighting
+  const todayStr = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${padTwo(d.getMonth() + 1)}-${padTwo(d.getDate())}`;
+  })();
 
-  const categories = [
-    'All',
-    'Sunday Service',
-    'Thursday Women\'s Meeting',
-    'Friday Youth Fellowship',
-    'Night Vigil',
-    'Bible Study',
-    'Conventions',
-  ];
+  const toggleCategory = (cat: EventCategory) => {
+    setActiveCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) {
+        if (next.size === 1) return prev; // keep at least one
+        next.delete(cat);
+      } else {
+        next.add(cat);
+      }
+      return next;
+    });
+  };
 
-  // Current system date representation for highlighting today
-  const todayString = '2026-07-02';
+  const filteredEvents = useMemo(
+    () => annualEvents.filter((e) => activeCategories.has(e.category)),
+    [activeCategories],
+  );
 
-  // Handle Month Navigation
-  const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
+  const eventsByDate = useMemo(() => {
+    const map: Record<string, typeof annualEvents> = {};
+    for (const ev of filteredEvents) {
+      if (!map[ev.date]) map[ev.date] = [];
+      map[ev.date].push(ev);
     }
-  };
+    return map;
+  }, [filteredEvents]);
 
-  const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
-  };
+  const monthEvents = useMemo(
+    () => filteredEvents.filter((e) => new Date(e.date).getMonth() === focusMonth),
+    [filteredEvents, focusMonth],
+  );
 
-  // Filter events based on month, year, and selected category
-  const filteredEvents = mockEvents.filter((event) => {
-    const eventDate = new Date(event.date);
-    const matchesMonth = eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
-    const matchesCategory = selectedCategory === 'All' || event.category === selectedCategory;
-    return matchesMonth && matchesCategory;
-  });
+  // ── MINI MONTH GRID ────────────────────────────────────────────────────────
+  const MiniMonthGrid: React.FC<{ month: number; onClick?: () => void }> = ({ month, onClick }) => {
+    const days = getDaysInMonth(month, YEAR);
+    const firstDay = getFirstDayOfMonth(month, YEAR);
+    const cells: (number | null)[] = [];
+    for (let i = 0; i < firstDay; i++) cells.push(null);
+    for (let i = 1; i <= days; i++) cells.push(i);
 
-  // Category classes styling mapping
-  const categoryStyles: Record<string, string> = {
-    'Sunday Service': 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900',
-    'Thursday Women\'s Meeting': 'bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-950/30 dark:text-pink-300 dark:border-pink-900',
-    'Friday Youth Fellowship': 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900',
-    'Night Vigil': 'bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-950/30 dark:text-violet-300 dark:border-violet-900',
-    'Bible Study': 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300 dark:border-blue-900',
-    'Conventions': 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/30 dark:text-purple-300 dark:border-purple-900',
-  };
-
-  // Calculate calendar grid for the selected month
-  const getDaysInMonth = (month: number, year: number) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
-
-  const getFirstDayOfMonth = (month: number, year: number) => {
-    return new Date(year, month, 1).getDay(); // Sunday: 0, Monday: 1...
-  };
-
-  const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-  const firstDayIndex = getFirstDayOfMonth(currentMonth, currentYear);
-
-  // Generate date list
-  const daysArray: (number | null)[] = [];
-  // Pad with null for alignment offset of first day
-  for (let i = 0; i < firstDayIndex; i++) {
-    daysArray.push(null);
-  }
-  for (let i = 1; i <= daysInMonth; i++) {
-    daysArray.push(i);
-  }
-
-  // Get events on a specific day number
-  const getEventsForDay = (day: number) => {
-    const formattedDay = day < 10 ? `0${day}` : `${day}`;
-    const formattedMonth = (currentMonth + 1) < 10 ? `0${currentMonth + 1}` : `${currentMonth + 1}`;
-    const dateStr = `${currentYear}-${formattedMonth}-${formattedDay}`;
-
-    return mockEvents.filter((event) => event.date === dateStr);
-  };
-
-  // Generate downloadable ICS file for adding to calendar
-  const handleDownloadICS = (event: ChurchEvent) => {
-    const padStr = (num: number) => (num < 10 ? '0' : '') + num;
-    
-    const eventDate = new Date(event.date);
-    const startYear = eventDate.getFullYear();
-    const startMonth = padStr(eventDate.getMonth() + 1);
-    const startDay = padStr(eventDate.getDate());
-    
-    // Parse approximate times (e.g. 09:00 AM)
-    const timeRegex = /(\d+):(\d+)\s*(AM|PM)/i;
-    const startMatch = event.time.split('-')[0].trim().match(timeRegex);
-    let hoursStr = '09';
-    let minsStr = '00';
-    if (startMatch) {
-      let hours = parseInt(startMatch[1]);
-      const mins = startMatch[2];
-      const ampm = startMatch[3].toUpperCase();
-      if (ampm === 'PM' && hours < 12) hours += 12;
-      if (ampm === 'AM' && hours === 12) hours = 0;
-      hoursStr = padStr(hours);
-      minsStr = mins;
-    }
-
-    const dstart = `${startYear}${startMonth}${startDay}T${hoursStr}${minsStr}00`;
-    const dend = `${startYear}${startMonth}${startDay}T${parseInt(hoursStr) + 3}${minsStr}00`; // Assume 3 hour duration
-
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Bethesda Apostolic Church//Calendar//EN',
-      'BEGIN:VEVENT',
-      `UID:${event.id}@Bethesda`,
-      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
-      `DTSTART:${dstart}`,
-      `DTEND:${dend}`,
-      `SUMMARY:${event.title}`,
-      `DESCRIPTION:${event.description.replace(/\n/g, '\\n')}`,
-      `LOCATION:${event.location}`,
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `${event.title.replace(/\s+/g, '_')}.ics`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
-      {/* Title Header */}
-      <section className="bg-church-purple text-white py-12 mb-10">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <span className="text-church-gold font-bold uppercase tracking-widest text-xs border border-church-gold/30 px-3 py-1 rounded-full bg-church-gold/10">
-            maDays emuSangano
-          </span>
-          <h1 className="text-3xl md:text-5xl font-bold font-serif mt-3 mb-2">
-            Bethesda Events Calendar
-          </h1>
-          <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
-            Keep track of all upcoming assembly services, women\'s fellowship days, youth fellowships, and national conventions.
-          </p>
+    return (
+      <motion.div
+        whileHover={{ scale: 1.015, boxShadow: '0 8px 32px rgba(100,0,180,0.10)' }}
+        className="bg-white rounded-2xl border border-stone-200 overflow-hidden cursor-pointer select-none"
+        onClick={onClick}
+      >
+        {/* month header */}
+        <div className="bg-gradient-to-r from-church-purple to-church-purple-dark text-white text-center py-2 px-3 font-serif font-bold text-sm tracking-wide">
+          {MONTHS[month]}
         </div>
-      </section>
-
-      <div className="container mx-auto px-4 md:px-6">
-        {/* Controls: Navigation, Filters, and Toggles */}
-        <div className="flex flex-col gap-6 bg-white p-6 rounded-2xl shadow-md border border-stone-200 mb-8">
-          {/* Row 1: Month Selector & View Toggle */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* Month Switcher */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handlePrevMonth}
-                className="p-2 border border-stone-200 hover:border-church-gold rounded-full text-stone-600 hover:text-church-purple bg-stone-50 hover:bg-stone-100 transition-colors"
-                aria-label="Previous Month"
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <h2 className="text-xl md:text-2xl font-bold font-serif text-church-purple w-44 text-center">
-                {monthsList[currentMonth]} {currentYear}
-              </h2>
-              <button
-                onClick={handleNextMonth}
-                className="p-2 border border-stone-200 hover:border-church-gold rounded-full text-stone-600 hover:text-church-purple bg-stone-50 hover:bg-stone-100 transition-colors"
-                aria-label="Next Month"
-              >
-                <ArrowRight size={18} />
-              </button>
-            </div>
-
-            {/* View Switcher toggle */}
-            <div className="flex items-center bg-stone-100 p-1.5 rounded-full self-start md:self-auto">
-              <button
-                onClick={() => setViewType('grid')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
-                  viewType === 'grid'
-                    ? 'bg-church-purple text-white shadow-md'
-                    : 'text-stone-600 hover:text-church-purple'
-                }`}
-              >
-                <CalendarIcon size={14} /> Grid View
-              </button>
-              <button
-                onClick={() => setViewType('list')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
-                  viewType === 'list'
-                    ? 'bg-church-purple text-white shadow-md'
-                    : 'text-stone-600 hover:text-church-purple'
-                }`}
-              >
-                <List size={14} /> Agenda List
-              </button>
-            </div>
-          </div>
-
-          {/* Row 2: Category Filter Chips */}
-          <div className="border-t border-stone-100 pt-4">
-            <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3 flex items-center gap-1">
-              <Tag size={12} /> Filter by Category:
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${
-                    selectedCategory === cat
-                      ? 'bg-church-gold border-church-gold text-church-purple-dark font-extrabold shadow-sm'
-                      : 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-600'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* day-name row */}
+        <div className="grid grid-cols-7 bg-church-purple/10 text-[9px] font-bold text-church-purple text-center py-1">
+          {DAYS_SHORT.map((d) => (
+            <div key={d}>{d}</div>
+          ))}
         </div>
+        {/* day cells */}
+        <div className="grid grid-cols-7 p-1 gap-[1px]">
+          {cells.map((day, idx) => {
+            if (!day)
+              return <div key={`e-${idx}`} className="h-7 w-full" />;
+            const dateStr = formatDate(YEAR, month, day);
+            const eventsOnDay = eventsByDate[dateStr] || [];
+            const isToday = dateStr === todayStr;
+            const topCat = eventsOnDay[0]?.category;
+            const meta = topCat ? categoryMeta[topCat] : null;
 
-        {/* Calendar View Area */}
-        <AnimatePresence mode="wait">
-          {viewType === 'grid' ? (
-            <motion.div
-              key="grid"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-3xl shadow-lg border border-stone-200 overflow-hidden"
-            >
-              {/* Day names row */}
-              <div className="grid grid-cols-7 bg-church-purple text-white text-center py-4 font-serif font-bold text-xs md:text-sm">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
+            return (
+              <div
+                key={dateStr}
+                className={`h-7 flex flex-col items-center justify-center rounded text-[10px] font-semibold relative transition-colors
+                  ${isToday ? 'ring-2 ring-church-gold bg-church-gold/10 text-church-purple-dark font-extrabold z-10' : 'text-stone-700'}
+                  ${meta ? `${meta.bg}` : 'hover:bg-stone-50'}
+                `}
+                title={eventsOnDay.map((e) => e.title).join(', ')}
+              >
+                <span>{day}</span>
+                {eventsOnDay.length > 0 && (
+                  <div className="flex gap-[2px] mt-[1px]">
+                    {eventsOnDay.slice(0, 3).map((ev) => (
+                      <span
+                        key={ev.id}
+                        className={`w-[4px] h-[4px] rounded-full ${categoryMeta[ev.category].dot}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
+            );
+          })}
+        </div>
+        {/* event count badge */}
+        {(() => {
+          const cnt = filteredEvents.filter((e) => new Date(e.date).getMonth() === month).length;
+          return cnt > 0 ? (
+            <div className="text-center text-[10px] text-stone-400 font-semibold pb-2">
+              {cnt} event{cnt !== 1 ? 's' : ''}
+            </div>
+          ) : (
+            <div className="pb-2" />
+          );
+        })()}
+      </motion.div>
+    );
+  };
 
-              {/* Day cells grid */}
-              <div className="grid grid-cols-7 border-t border-stone-200 bg-stone-100 gap-[1px]">
-                {daysArray.map((day, idx) => {
-                  if (day === null) {
-                    return <div key={`empty-${idx}`} className="bg-stone-50 min-h-[90px] md:min-h-[140px]" />;
-                  }
+  // ── FULL MONTH GRID ────────────────────────────────────────────────────────
+  const FullMonthGrid: React.FC = () => {
+    const days = getDaysInMonth(focusMonth, YEAR);
+    const firstDay = getFirstDayOfMonth(focusMonth, YEAR);
+    const cells: (number | null)[] = [];
+    for (let i = 0; i < firstDay; i++) cells.push(null);
+    for (let i = 1; i <= days; i++) cells.push(i);
 
-                  const formattedDay = day < 10 ? `0${day}` : `${day}`;
-                  const formattedMonth = (currentMonth + 1) < 10 ? `0${currentMonth + 1}` : `${currentMonth + 1}`;
-                  const thisDateString = `${currentYear}-${formattedMonth}-${formattedDay}`;
-                  const isToday = thisDateString === todayString;
-                  const dayEvents = getEventsForDay(day);
+    return (
+      <div className="bg-white rounded-3xl border border-stone-200 shadow-lg overflow-hidden">
+        {/* Day-name header */}
+        <div className="grid grid-cols-7 bg-gradient-to-r from-church-purple to-church-purple-dark text-white text-center py-3 font-serif font-bold text-xs md:text-sm">
+          {DAYS_SHORT.map((d) => (
+            <div key={d}>{d}</div>
+          ))}
+        </div>
+        {/* Day cells */}
+        <div className="grid grid-cols-7 border-t border-stone-100 bg-stone-100 gap-[1px]">
+          {cells.map((day, idx) => {
+            if (!day)
+              return (
+                <div
+                  key={`empty-${idx}`}
+                  className="bg-stone-50 min-h-[90px] md:min-h-[120px]"
+                />
+              );
+            const dateStr = formatDate(YEAR, focusMonth, day);
+            const isToday = dateStr === todayStr;
+            const dayEvs = eventsByDate[dateStr] || [];
 
+            return (
+              <div
+                key={dateStr}
+                className={`bg-white min-h-[90px] md:min-h-[120px] p-1.5 flex flex-col gap-1 transition-colors
+                  ${isToday ? 'ring-2 ring-inset ring-church-gold bg-amber-50/40' : 'hover:bg-stone-50/60'}`}
+              >
+                {/* Day number */}
+                <span
+                  className={`text-xs font-bold flex items-center justify-center w-6 h-6 rounded-full shrink-0
+                    ${isToday ? 'bg-church-gold text-white shadow' : 'text-stone-700'}`}
+                >
+                  {day}
+                </span>
+                {/* Events */}
+                {dayEvs.map((ev) => {
+                  const meta = categoryMeta[ev.category];
                   return (
                     <div
-                      key={`day-${day}`}
-                      className={`bg-white min-h-[90px] md:min-h-[140px] p-2 relative flex flex-col justify-between group transition-colors duration-200 hover:bg-stone-50/50 ${
-                        isToday ? 'ring-2 ring-church-gold ring-inset bg-church-gold/5' : ''
-                      }`}
+                      key={ev.id}
+                      title={ev.description || ev.title}
+                      className={`text-[9px] md:text-[11px] font-semibold px-1.5 py-0.5 rounded truncate border leading-tight
+                        ${meta.bg} ${meta.color} ${meta.border}`}
                     >
-                      {/* Day Number */}
-                      <span
-                        className={`text-sm font-bold flex items-center justify-center w-7 h-7 rounded-full ${
-                          isToday
-                            ? 'bg-church-gold text-church-purple-dark'
-                            : 'text-stone-700'
-                        }`}
-                      >
-                        {day}
-                      </span>
+                      {ev.title}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
-                      {/* Day Events Indicator */}
-                      <div className="mt-2 flex flex-col gap-1 overflow-hidden">
-                        {dayEvents.map((evt) => (
-                          <div
-                            key={evt.id}
-                            title={`${evt.title}\n${evt.time}`}
-                            className={`text-[10px] md:text-xs font-semibold px-2 py-1 rounded truncate border ${
-                              categoryStyles[evt.category] || 'bg-stone-100 text-stone-800'
-                            }`}
-                          >
-                            {evt.title}
-                          </div>
-                        ))}
+  // ── LIST VIEW ──────────────────────────────────────────────────────────────
+  const ListView: React.FC = () => {
+    const grouped: Record<number, typeof annualEvents> = {};
+    for (const ev of filteredEvents) {
+      const m = new Date(ev.date).getMonth();
+      if (!grouped[m]) grouped[m] = [];
+      grouped[m].push(ev);
+    }
+
+    return (
+      <div className="flex flex-col gap-8">
+        {MONTHS.map((monthName, mi) => {
+          const evs = grouped[mi];
+          if (!evs || evs.length === 0) return null;
+          return (
+            <motion.div
+              key={mi}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: mi * 0.03 }}
+              className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden"
+            >
+              {/* Month label */}
+              <div className="bg-gradient-to-r from-church-purple to-church-purple-dark text-white px-6 py-3 font-serif font-bold text-lg flex items-center gap-2">
+                <CalendarIcon size={18} className="text-church-gold" />
+                {monthName} {YEAR}
+                <span className="ml-auto text-xs bg-white/20 rounded-full px-3 py-0.5 font-sans">
+                  {evs.length} event{evs.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              {/* Events list */}
+              <div className="divide-y divide-stone-100">
+                {evs.sort((a, b) => a.date.localeCompare(b.date)).map((ev) => {
+                  const meta = categoryMeta[ev.category];
+                  const d = new Date(ev.date);
+                  const isToday = ev.date === todayStr;
+                  return (
+                    <div
+                      key={ev.id}
+                      className={`flex items-start gap-4 px-6 py-4 hover:bg-stone-50/60 transition-colors
+                        ${isToday ? 'border-l-4 border-church-gold bg-amber-50/40' : ''}`}
+                    >
+                      {/* Date badge */}
+                      <div className={`shrink-0 w-12 h-12 rounded-xl flex flex-col items-center justify-center border text-center ${meta.bg} ${meta.border}`}>
+                        <span className={`text-[10px] font-bold uppercase ${meta.color}`}>
+                          {MONTHS[d.getMonth()].substring(0, 3)}
+                        </span>
+                        <span className={`text-lg font-extrabold font-serif leading-none ${meta.color}`}>
+                          {padTwo(d.getDate())}
+                        </span>
+                      </div>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${meta.bg} ${meta.color} ${meta.border}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                            {meta.label}
+                          </span>
+                          {isToday && (
+                            <span className="text-[10px] font-bold bg-church-gold text-church-purple-dark px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <Star size={9} /> Today
+                            </span>
+                          )}
+                        </div>
+                        <p className={`mt-1 font-bold text-church-purple text-sm md:text-base ${ev.title.length > 40 ? 'text-sm' : ''}`}>
+                          {ev.title}
+                        </p>
+                        {ev.description && (
+                          <p className="text-stone-500 text-xs mt-0.5 leading-relaxed">{ev.description}</p>
+                        )}
                       </div>
                     </div>
                   );
                 })}
               </div>
             </motion.div>
-          ) : (
-            // List / Agenda View
+          );
+        })}
+      </div>
+    );
+  };
+
+  // ── RENDER ─────────────────────────────────────────────────────────────────
+  return (
+    <div className="pt-24 pb-20 bg-stone-50 min-h-screen">
+      {/* Header banner */}
+      <section className="bg-gradient-to-br from-church-purple via-church-purple-dark to-[#1a003a] text-white py-14 mb-10 relative overflow-hidden">
+        {/* decorative circles */}
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-church-gold/10 blur-2xl" />
+        <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 blur-2xl" />
+        <div className="container mx-auto px-4 md:px-6 text-center relative z-10">
+          <span className="inline-block text-church-gold font-bold uppercase tracking-widest text-xs border border-church-gold/40 px-4 py-1 rounded-full bg-church-gold/10 mb-4">
+            Chirangarangarwa cheKereke
+          </span>
+          <h1 className="text-3xl md:text-5xl font-bold font-serif mb-3">
+            BAC Church Calendar 2026
+          </h1>
+          <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
+            The official annual programme of Bethesda Apostolic Church — all wings, all events, for the glory of God.
+          </p>
+          <p className="text-stone-400 text-xs mt-2">
+            *Please contact the Secretariat for any amendments.
+          </p>
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 md:px-6">
+        {/* ── Controls ─────────────────────────────────────────────────────── */}
+        <div className="bg-white rounded-2xl shadow border border-stone-200 p-5 mb-8 flex flex-col gap-5">
+          {/* Row 1 – View mode switcher */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 className="text-lg font-bold font-serif text-church-purple">
+              {viewMode === 'annual'
+                ? 'Annual Overview'
+                : viewMode === 'month'
+                ? `${MONTHS[focusMonth]} ${YEAR}`
+                : 'Agenda List'}
+            </h2>
+
+            <div className="flex items-center bg-stone-100 rounded-full p-1">
+              {(
+                [
+                  { id: 'annual', icon: <LayoutGrid size={14} />, label: 'Annual' },
+                  { id: 'month', icon: <CalendarIcon size={14} />, label: 'Month' },
+                  { id: 'list', icon: <List size={14} />, label: 'Agenda' },
+                ] as const
+              ).map(({ id, icon, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setViewMode(id)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 ${
+                    viewMode === id
+                      ? 'bg-church-purple text-white shadow'
+                      : 'text-stone-600 hover:text-church-purple'
+                  }`}
+                >
+                  {icon} {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Month navigator (shown in month view) */}
+          {viewMode === 'month' && (
+            <div className="flex items-center gap-3 self-start">
+              <button
+                onClick={() => setFocusMonth((m) => (m === 0 ? 11 : m - 1))}
+                className="p-2 rounded-full border border-stone-200 hover:border-church-gold hover:text-church-purple text-stone-500 transition-colors"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-stone-700 font-semibold w-32 text-center">
+                {MONTHS[focusMonth]}
+              </span>
+              <button
+                onClick={() => setFocusMonth((m) => (m === 11 ? 0 : m + 1))}
+                className="p-2 rounded-full border border-stone-200 hover:border-church-gold hover:text-church-purple text-stone-500 transition-colors"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* Row 2 – Category filters */}
+          <div className="border-t border-stone-100 pt-4">
+            <p className="text-[10px] font-bold uppercase text-stone-400 tracking-wider mb-3">
+              Filter by Wing / Program Type:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {ALL_CATEGORIES.map((cat) => {
+                const meta = categoryMeta[cat];
+                const active = activeCategories.has(cat);
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => toggleCategory(cat)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-200 ${
+                      active
+                        ? `${meta.bg} ${meta.color} ${meta.border} shadow-sm`
+                        : 'bg-stone-50 text-stone-400 border-stone-200 opacity-60'
+                    }`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${active ? meta.dot : 'bg-stone-300'}`} />
+                    {meta.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Views ────────────────────────────────────────────────────────── */}
+        <AnimatePresence mode="wait">
+          {viewMode === 'annual' && (
+            <motion.div
+              key="annual"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {MONTHS.map((_, mi) => (
+                  <MiniMonthGrid
+                    key={mi}
+                    month={mi}
+                    onClick={() => {
+                      setFocusMonth(mi);
+                      setViewMode('month');
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Legend */}
+              <div className="mt-8 bg-white rounded-2xl border border-stone-200 shadow-sm p-5">
+                <h3 className="text-sm font-bold font-serif text-church-purple mb-3 flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded bg-church-purple/10 inline-block" />
+                  Calendar Key
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {ALL_CATEGORIES.map((cat) => {
+                    const meta = categoryMeta[cat];
+                    return (
+                      <div key={cat} className="flex items-center gap-2 text-sm">
+                        <span className={`w-3 h-3 rounded-full shrink-0 ${meta.dot}`} />
+                        <span className="text-stone-700 font-medium">{meta.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-stone-400 mt-3 italic">
+                  Click on any month to view the detailed calendar. *Please contact Secretariat for any amendments.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {viewMode === 'month' && (
+            <motion.div
+              key={`month-${focusMonth}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.3 }}
+            >
+              <FullMonthGrid />
+
+              {/* Month events list */}
+              {monthEvents.length > 0 && (
+                <div className="mt-6 bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                  <div className="px-6 py-3 border-b border-stone-100 font-bold text-sm text-stone-600">
+                    {monthEvents.length} Event{monthEvents.length !== 1 ? 's' : ''} this month
+                  </div>
+                  <div className="divide-y divide-stone-100">
+                    {monthEvents
+                      .sort((a, b) => a.date.localeCompare(b.date))
+                      .map((ev) => {
+                        const meta = categoryMeta[ev.category];
+                        const d = new Date(ev.date);
+                        return (
+                          <div key={ev.id} className="flex items-center gap-4 px-6 py-3 hover:bg-stone-50 transition-colors">
+                            <span className="text-stone-400 text-xs font-mono w-6 shrink-0">
+                              {padTwo(d.getDate())}
+                            </span>
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${meta.dot}`} />
+                            <span className="text-stone-800 text-sm font-semibold flex-1">{ev.title}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${meta.bg} ${meta.color}`}>
+                              {meta.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {viewMode === 'list' && (
             <motion.div
               key="list"
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
+              exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-6"
             >
-              {filteredEvents.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-3xl border border-stone-200 shadow-sm">
-                  <CalendarIcon className="w-12 h-12 text-stone-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-stone-700 font-serif">No Events Scheduled</h3>
-                  <p className="text-stone-500 text-sm mt-1">
-                    There are no services fitting these filters scheduled for this month.
-                  </p>
-                </div>
-              ) : (
-                filteredEvents.map((event) => (
-                  <AnimatedCard key={event.id} direction="up" className="bg-white rounded-2xl shadow-sm border border-stone-200 hover:border-church-gold transition-colors duration-300 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    {/* Left: Date indicator */}
-                    <div className="flex items-center gap-4 shrink-0">
-                      <div className="w-16 h-16 rounded-xl bg-church-purple/5 flex flex-col items-center justify-center text-church-purple border border-church-purple/10">
-                        <span className="text-[10px] font-bold uppercase tracking-wider">
-                          {monthsList[new Date(event.date).getMonth()].substring(0, 3)}
-                        </span>
-                        <span className="text-2xl font-bold font-serif leading-none mt-1">
-                          {new Date(event.date).getDate()}
-                        </span>
-                      </div>
-                      <div>
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${categoryStyles[event.category]}`}>
-                          {event.category}
-                        </span>
-                        <h3 className="text-xl font-bold font-serif text-church-purple mt-1.5">
-                          {event.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {/* Middle: Details */}
-                    <div className="flex-grow max-w-xl text-stone-600 text-sm font-light">
-                      <p className="mb-4 leading-relaxed">{event.description}</p>
-                      <div className="flex flex-wrap gap-4 text-xs font-semibold">
-                        <span className="flex items-center gap-1 text-stone-500">
-                          <Clock size={14} className="text-church-gold" /> {event.time}
-                        </span>
-                        <span className="flex items-center gap-1 text-stone-500">
-                          <MapPin size={14} className="text-church-gold" /> {event.location}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right: Actions */}
-                    <div className="shrink-0 flex self-start md:self-auto">
-                      <button
-                        onClick={() => handleDownloadICS(event)}
-                        className="flex items-center gap-1.5 border border-church-purple hover:bg-church-purple hover:text-white text-church-purple font-bold text-xs px-4 py-2.5 rounded-full transition-all duration-200"
-                        title="Add to Google/Apple Calendar"
-                      >
-                        <Download size={14} /> Add to Calendar
-                      </button>
-                    </div>
-                  </AnimatedCard>
-                ))
-              )}
+              <ListView />
             </motion.div>
           )}
         </AnimatePresence>

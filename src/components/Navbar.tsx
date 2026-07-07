@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Menu, X, Bell } from 'lucide-react';
+import { Menu, X, Bell, ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { mockNotices } from '../data/mockData';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isYouthOpen, setIsYouthOpen] = useState(false);
   const location = useLocation();
 
   // Count new notices for badge
@@ -20,9 +21,10 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close sidebar on route change
+  // Close sidebar and youth dropdown on route change
   useEffect(() => {
     setIsSidebarOpen(false);
+    setIsYouthOpen(false);
   }, [location]);
 
   // Prevent body scroll when sidebar is open
@@ -32,10 +34,10 @@ export const Navbar: React.FC = () => {
   }, [isSidebarOpen]);
 
   // Sidebar menu items — in exact order, no icons, no Notice Board, no Get In Touch
+  // Youth is handled separately as a dropdown accordion
   const sidebarLinks = [
     { name: 'Home', path: '/' },
     { name: 'Annual Church Calendar', path: '/calendar' },
-    { name: 'Youth', path: '/youth' },
     { name: 'BMCU', path: '/bmcu' },
     { name: 'Ruwadzano', path: '/ruwadzano' },
     { name: 'Choir Registration', path: '/choir' },
@@ -44,6 +46,15 @@ export const Navbar: React.FC = () => {
     { name: 'Temple Progress', path: '/temple-progress' },
     { name: 'Contact', path: '/contact' },
   ];
+
+  const youthSubLinks = [
+    { name: 'BCU', path: '/youth/bcu' },
+    { name: 'GCU', path: '/youth/gcu' },
+    { name: 'BACOC', path: '/youth/bacoc' },
+  ];
+
+  // Check if any youth-related route is active
+  const isYouthActive = location.pathname.startsWith('/youth');
 
   return (
     <>
@@ -186,11 +197,103 @@ export const Navbar: React.FC = () => {
 
                 {/* Nav Links */}
                 <nav className="flex flex-col gap-1.5 px-4 py-6 flex-grow overflow-y-auto">
-                  {sidebarLinks.map((link) => (
+                  {/* Home */}
+                  {sidebarLinks.slice(0, 1).map((link) => (
                     <NavLink
                       key={link.path}
                       to={link.path}
-                      end={link.path === '/'}
+                      end
+                      className={({ isActive }) =>
+                        `block px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-200 ${
+                          isActive
+                            ? 'bg-[#C8882C] text-white shadow-md shadow-[#C8882C]/30'
+                            : 'text-[#3A2A00] hover:bg-[#F2D88A] hover:text-[#3A2A00]'
+                        }`
+                      }
+                      onClick={() => setIsSidebarOpen(false)}
+                    >
+                      {link.name}
+                    </NavLink>
+                  ))}
+
+                  {/* Annual Church Calendar */}
+                  {sidebarLinks.slice(1, 2).map((link) => (
+                    <NavLink
+                      key={link.path}
+                      to={link.path}
+                      className={({ isActive }) =>
+                        `block px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-200 ${
+                          isActive
+                            ? 'bg-[#C8882C] text-white shadow-md shadow-[#C8882C]/30'
+                            : 'text-[#3A2A00] hover:bg-[#F2D88A] hover:text-[#3A2A00]'
+                        }`
+                      }
+                      onClick={() => setIsSidebarOpen(false)}
+                    >
+                      {link.name}
+                    </NavLink>
+                  ))}
+
+                  {/* ── Youth Dropdown Accordion ── */}
+                  <div>
+                    <button
+                      id="youth-dropdown-btn"
+                      onClick={() => setIsYouthOpen((prev) => !prev)}
+                      className={`w-full flex items-center justify-between px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-200 ${
+                        isYouthActive
+                          ? 'bg-[#C8882C] text-white shadow-md shadow-[#C8882C]/30'
+                          : 'text-[#3A2A00] hover:bg-[#F2D88A] hover:text-[#3A2A00]'
+                      }`}
+                      aria-expanded={isYouthOpen}
+                      aria-haspopup="true"
+                    >
+                      <span>Youth</span>
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-250 ${
+                          isYouthOpen ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {isYouthOpen && (
+                        <motion.div
+                          key="youth-submenu"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25, ease: 'easeInOut' }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-1 ml-4 flex flex-col gap-1">
+                            {youthSubLinks.map((sub) => (
+                              <NavLink
+                                key={sub.path}
+                                to={sub.path}
+                                className={({ isActive }) =>
+                                  `block px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200 border-l-2 ${
+                                    isActive
+                                      ? 'bg-[#C8882C]/80 text-white border-[#C8882C] shadow-sm'
+                                      : 'text-[#3A2A00]/80 hover:bg-[#F2D88A] hover:text-[#3A2A00] border-[#C8882C]/40'
+                                  }`
+                                }
+                                onClick={() => setIsSidebarOpen(false)}
+                              >
+                                {sub.name}
+                              </NavLink>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Remaining links */}
+                  {sidebarLinks.slice(2).map((link) => (
+                    <NavLink
+                      key={link.path}
+                      to={link.path}
                       className={({ isActive }) =>
                         `block px-5 py-3.5 rounded-xl text-base font-medium transition-all duration-200 ${
                           isActive

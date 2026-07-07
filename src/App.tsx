@@ -12,6 +12,9 @@ import { UniformsPage } from './pages/Uniforms';
 import { NoticeBoardPage } from './pages/NoticeBoard';
 import { ContactPage } from './pages/Contact';
 import { YouthPage } from './pages/Youth';
+import { BCUPage } from './pages/BCU';
+import { GCUPage } from './pages/GCU';
+import { BACOCPage } from './pages/BACOC';
 import { BMCUPage } from './pages/BMCU';
 import { RuwadzanoPage } from './pages/Ruwadzano';
 
@@ -56,6 +59,9 @@ const AppContent: React.FC = () => {
             <Route path="/uniforms" element={<PageWrapper><UniformsPage /></PageWrapper>} />
             <Route path="/notice-board" element={<PageWrapper><NoticeBoardPage /></PageWrapper>} />
             <Route path="/youth" element={<PageWrapper><YouthPage /></PageWrapper>} />
+            <Route path="/youth/bcu" element={<PageWrapper><BCUPage /></PageWrapper>} />
+            <Route path="/youth/gcu" element={<PageWrapper><GCUPage /></PageWrapper>} />
+            <Route path="/youth/bacoc" element={<PageWrapper><BACOCPage /></PageWrapper>} />
             <Route path="/bmcu" element={<PageWrapper><BMCUPage /></PageWrapper>} />
             <Route path="/ruwadzano" element={<PageWrapper><RuwadzanoPage /></PageWrapper>} />
             <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />

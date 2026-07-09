@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Bell, ShieldAlert, Award, ChevronRight, UserPlus, MapPin, Sparkles, Clock } from 'lucide-react';
 import { ImageCarousel } from '../components/ImageCarousel';
+
+const FacebookIcon: React.FC<{ className?: string, size?: number }> = ({ className, size = 24 }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    stroke="currentColor"
+    strokeWidth="2"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
 import { AnimatedCard } from '../components/AnimatedCard';
 import { ProgressBar } from '../components/ProgressBar';
 import {
@@ -389,6 +405,14 @@ export const Home: React.FC = () => {
                 >
                   RSVP Count Me In
                 </Link>
+                <a
+                  href="https://www.facebook.com/profile.php?id=100092623952022"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-medium px-6 py-3 rounded-full text-sm transition-colors duration-200 flex items-center gap-2"
+                >
+                  <FacebookIcon size={18} /> Facebook Page
+                </a>
               </div>
             </AnimatedCard>
 

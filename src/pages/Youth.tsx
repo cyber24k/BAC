@@ -5,6 +5,22 @@ import { AnimatedCard } from '../components/AnimatedCard';
 import { mockYouthEvents } from '../data/mockData';
 import type { YouthEvent } from '../data/mockData';
 
+const FacebookIcon: React.FC<{ className?: string, size?: number }> = ({ className, size = 24 }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width={size}
+    height={size}
+    stroke="currentColor"
+    strokeWidth="2"
+    fill="none"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
 export const YouthPage: React.FC = () => {
   const [activeRsvpItem, setActiveRsvpItem] = useState<YouthEvent | null>(null);
   
@@ -102,6 +118,17 @@ export const YouthPage: React.FC = () => {
           <p className="text-stone-300 font-light max-w-xl mx-auto text-sm md:text-base">
             Equipping young believers with spiritual strength, life leadership skills, and community impact.
           </p>
+          <div className="mt-6 flex justify-center">
+            <a 
+              href="https://www.facebook.com/profile.php?id=100092623952022"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white font-bold py-2.5 px-6 rounded-full transition-all text-sm shadow-md"
+            >
+              <FacebookIcon size={18} />
+              Visit our Facebook Page
+            </a>
+          </div>
         </div>
       </section>
 
@@ -229,6 +256,33 @@ export const YouthPage: React.FC = () => {
                 </div>
               </AnimatedCard>
             ))}
+          </div>
+        </section>
+
+        {/* Facebook Feed Section */}
+        <section>
+          <div className="flex flex-col items-center text-center mb-10 max-w-lg mx-auto">
+            <h3 className="text-2xl font-bold font-serif text-church-purple flex items-center justify-center gap-2">
+              <FacebookIcon className="text-[#1877F2]" size={24} /> Live from Facebook
+            </h3>
+            <p className="text-stone-500 text-xs mt-1.5 leading-relaxed font-light">
+              Stay up-to-date with our latest posts, pictures, and live community interactions directly from the youth Facebook page.
+            </p>
+          </div>
+          <div className="flex justify-center w-full">
+            <div className="w-full max-w-[500px] bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden flex justify-center">
+              <iframe 
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fprofile.php%3Fid%3D100092623952022&tabs=timeline&width=500&height=700&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                width="500" 
+                height="700" 
+                style={{ border: 'none', overflow: 'hidden', maxWidth: '100%' }} 
+                scrolling="no" 
+                frameBorder="0" 
+                allowFullScreen={true} 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                title="Bethesda Apostolic Church Youth Facebook Feed"
+              ></iframe>
+            </div>
           </div>
         </section>
       </div>
